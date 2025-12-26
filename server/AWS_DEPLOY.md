@@ -8,7 +8,46 @@
 
 ---
 
-## Option A: AWS Elastic Beanstalk (Easiest)
+## Option A: AWS App Runner (Recommended - Easiest)
+
+AWS App Runner is the simplest way to deploy a web application directly from a GitHub repository.
+
+### Step 1: Create AWS Account
+
+1. Go to [aws.amazon.com](https://aws.amazon.com) and create a free tier account.
+
+### Step 2: Create a PostgreSQL Database (RDS)
+
+1. In the AWS Console, search for **RDS**.
+2. Click **Create database**.
+3. Choose **PostgreSQL** and the **Free tier** template.
+4. Set your Master username and password (save these!).
+5. Under **Connectivity**, ensure **Public access** is set to **Yes** if you want to seed it from your local machine (though **No** is more secure for production).
+6. Create the database.
+
+### Step 3: Deploy with App Runner
+
+1. Search for **App Runner** in the AWS Console.
+2. Click **Create App Runner service**.
+3. **Source**: Source code repository.
+4. **Service name**: `aixilcoils-api`.
+5. **Repository type**: GitHub.
+6. Connect your GitHub account and select the `aixilcoils-management-suite` repo.
+7. **Deployment settings**: Automatic (re-deploys when you push code).
+8. **Build Settings**:
+   - **Runtime**: Nodejs 18 (or latest)
+   - **Build command**: `npm install && npx prisma generate`
+   - **Start command**: `npm start`
+   - **Port**: `5000`
+9. **Environment Variables**:
+   - `DATABASE_URL`: `postgresql://USER:PASS@ENDPOINT:5432/postgres` (get this from your RDS instance)
+   - `JWT_SECRET`: Generate a secure random string
+   - `CLIENT_URL`: `*`
+   - `NODE_ENV`: `production`
+
+---
+
+## Option B: AWS Elastic Beanstalk (Traditional)
 
 ### Step 1: Create AWS Account
 
