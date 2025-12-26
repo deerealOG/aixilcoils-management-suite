@@ -1,0 +1,29 @@
+# Render.com Blueprint Configuration
+# Deploy: https://render.com/deploy?repo=https://github.com/deerealOG/aixilcoils-management-suite
+
+services:
+  - type: web
+    name: aixilcoils-api
+    runtime: node
+    region: oregon
+    plan: free
+    rootDir: server
+    buildCommand: npm install && npx prisma generate
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_URL
+        value: "*"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: aixilcoils-db
+          property: connectionString
+
+databases:
+  - name: aixilcoils-db
+    plan: free
+    region: oregon
