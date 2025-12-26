@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Download AIXILCOILS Management Suite</title>
+    <meta
+      name="description"
+      content="Download the AIXILCOILS Management Suite app for Windows, macOS, Linux, iOS, and Android."
+    />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #0f0f23 0%,
+          #1a1a3e 50%,
+          #0f0f23 100%
+        );
+        min-height: 100vh;
+        color: #ffffff;
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+      }
+
+      /* Header */
+      .header {
+        text-align: center;
+        margin-bottom: 60px;
+      }
+
+      .logo {
+        display: inline-flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .logo-icon {
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        font-weight: 800;
+        color: white;
+        box-shadow: 0 10px 40px rgba(99, 102, 241, 0.4);
+      }
+
+      .logo-text {
+        font-size: 28px;
+        font-weight: 700;
+      }
+
+      .tagline {
+        font-size: 18px;
+        color: rgba(255, 255, 255, 0.7);
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .version-badge {
+        display: inline-block;
+        background: rgba(99, 102, 241, 0.2);
+        border: 1px solid rgba(99, 102, 241, 0.4);
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        color: #a5b4fc;
+        margin-top: 16px;
+      }
+
+      /* Sections */
+      .section-title {
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: rgba(255, 255, 255, 0.5);
+        margin-bottom: 24px;
+        text-align: center;
+      }
+
+      /* Download Cards Grid */
+      .download-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-bottom: 60px;
+      }
+
+      .download-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 32px;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .download-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #6366f1, #8b5cf6);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .download-card:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(99, 102, 241, 0.4);
+        transform: translateY(-4px);
+      }
+
+      .download-card:hover::before {
+        opacity: 1;
+      }
+
+      .platform-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+      }
+
+      .platform-name {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+
+      .platform-desc {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 24px;
+      }
+
+      .download-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        text-decoration: none;
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        width: 100%;
+        border: none;
+        cursor: pointer;
+      }
+
+      .download-btn:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4);
+      }
+
+      .download-btn.secondary {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .download-btn.secondary:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
+
+      .file-info {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.4);
+        margin-top: 12px;
+      }
+
+      /* Web Access Section */
+      .web-access {
+        background: linear-gradient(
+          135deg,
+          rgba(99, 102, 241, 0.1) 0%,
+          rgba(139, 92, 246, 0.1) 100%
+        );
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        border-radius: 24px;
+        padding: 48px;
+        text-align: center;
+        margin-bottom: 60px;
+      }
+
+      .web-access h2 {
+        font-size: 24px;
+        margin-bottom: 12px;
+      }
+
+      .web-access p {
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 24px;
+      }
+
+      .web-access .download-btn {
+        display: inline-flex;
+        width: auto;
+        padding: 16px 40px;
+      }
+
+      /* Requirements Section */
+      .requirements {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 20px;
+        padding: 32px;
+        margin-bottom: 60px;
+      }
+
+      .requirements h3 {
+        font-size: 18px;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .req-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+      }
+
+      .req-item {
+        text-align: center;
+      }
+
+      .req-item h4 {
+        font-size: 14px;
+        color: #a5b4fc;
+        margin-bottom: 8px;
+      }
+
+      .req-item p {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      /* QR Code Section */
+      .qr-section {
+        text-align: center;
+        margin-bottom: 60px;
+      }
+
+      .qr-grid {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        flex-wrap: wrap;
+      }
+
+      .qr-item {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 24px;
+      }
+
+      .qr-placeholder {
+        width: 150px;
+        height: 150px;
+        background: white;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: #333;
+      }
+
+      .qr-label {
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      /* Footer */
+      .footer {
+        text-align: center;
+        padding: 40px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .footer p {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 14px;
+      }
+
+      .footer a {
+        color: #a5b4fc;
+        text-decoration: none;
+      }
+
+      .footer a:hover {
+        text-decoration: underline;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .logo-text {
+          font-size: 22px;
+        }
+
+        .download-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .web-access {
+          padding: 32px 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <header class="header">
+        <div class="logo">
+          <div class="logo-icon">A</div>
+          <span class="logo-text">AIXILCOILS Management Suite</span>
+        </div>
+        <p class="tagline">
+          Enterprise management system for employee performance tracking, HR
+          management, and project management. Download for your platform below.
+        </p>
+        <span class="version-badge">Version 1.0.0</span>
+      </header>
+
+      <!-- Web Access -->
+      <section class="web-access">
+        <h2>🌐 Access via Web Browser</h2>
+        <p>
+          No download required. Access the full application from any modern
+          browser.
+        </p>
+        <a href="https://ams.aixilcoils.com" class="download-btn">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="2" y1="12" x2="22" y2="12" />
+            <path
+              d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+            />
+          </svg>
+          Open Web App
+        </a>
+      </section>
+
+      <!-- Desktop Downloads -->
+      <p class="section-title">Desktop Applications</p>
+      <div class="download-grid">
+        <!-- Windows -->
+        <div class="download-card">
+          <div class="platform-icon">🪟</div>
+          <h3 class="platform-name">Windows</h3>
+          <p class="platform-desc">For Windows 10/11 (64-bit)</p>
+          <a
+            href="/downloads/AIXILCOILS-AMS-Setup-1.0.0.exe"
+            class="download-btn"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Download .exe
+          </a>
+          <p class="file-info">~85 MB • Installer</p>
+        </div>
+
+        <!-- macOS -->
+        <div class="download-card">
+          <div class="platform-icon">🍎</div>
+          <h3 class="platform-name">macOS</h3>
+          <p class="platform-desc">For macOS 11+ (Intel & Apple Silicon)</p>
+          <a href="/downloads/AIXILCOILS-AMS-1.0.0.dmg" class="download-btn">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Download .dmg
+          </a>
+          <p class="file-info">~95 MB • Disk Image</p>
+        </div>
+
+        <!-- Linux -->
+        <div class="download-card">
+          <div class="platform-icon">🐧</div>
+          <h3 class="platform-name">Linux</h3>
+          <p class="platform-desc">For Ubuntu, Fedora, and more</p>
+          <a
+            href="/downloads/AIXILCOILS-AMS-1.0.0.AppImage"
+            class="download-btn"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Download .AppImage
+          </a>
+          <p class="file-info">~90 MB • Universal Package</p>
+        </div>
+      </div>
+
+      <!-- Mobile Downloads -->
+      <p class="section-title">Mobile Applications</p>
+      <div class="download-grid">
+        <!-- Android -->
+        <div class="download-card">
+          <div class="platform-icon">🤖</div>
+          <h3 class="platform-name">Android</h3>
+          <p class="platform-desc">For Android 8.0+</p>
+          <a href="/downloads/AIXILCOILS-AMS-1.0.0.apk" class="download-btn">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Download APK
+          </a>
+          <p class="file-info">~45 MB • Direct Install</p>
+          <div style="margin-top: 12px">
+            <a
+              href="https://play.google.com/store/apps/details?id=com.aixilcoils.ams"
+              class="download-btn secondary"
+              style="padding: 10px 20px; font-size: 13px"
+            >
+              Or get from Play Store
+            </a>
+          </div>
+        </div>
+
+        <!-- iOS -->
+        <div class="download-card">
+          <div class="platform-icon">📱</div>
+          <h3 class="platform-name">iOS</h3>
+          <p class="platform-desc">For iOS 14+</p>
+          <a
+            href="https://apps.apple.com/app/aixilcoils-ams/id123456789"
+            class="download-btn"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Get on App Store
+          </a>
+          <p class="file-info">~50 MB • App Store</p>
+          <div style="margin-top: 12px">
+            <a
+              href="https://testflight.apple.com/join/xxxxx"
+              class="download-btn secondary"
+              style="padding: 10px 20px; font-size: 13px"
+            >
+              Join TestFlight Beta
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- QR Codes for Mobile -->
+      <section class="qr-section">
+        <p class="section-title">Scan to Download</p>
+        <div class="qr-grid">
+          <div class="qr-item">
+            <div class="qr-placeholder">[Android QR]</div>
+            <p class="qr-label">Android APK</p>
+          </div>
+          <div class="qr-item">
+            <div class="qr-placeholder">[iOS QR]</div>
+            <p class="qr-label">App Store</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- System Requirements -->
+      <section class="requirements">
+        <h3>📋 System Requirements</h3>
+        <div class="req-grid">
+          <div class="req-item">
+            <h4>Windows</h4>
+            <p>Windows 10/11<br />4GB RAM<br />200MB disk space</p>
+          </div>
+          <div class="req-item">
+            <h4>macOS</h4>
+            <p>macOS 11+<br />4GB RAM<br />200MB disk space</p>
+          </div>
+          <div class="req-item">
+            <h4>Linux</h4>
+            <p>Ubuntu 20.04+<br />4GB RAM<br />200MB disk space</p>
+          </div>
+          <div class="req-item">
+            <h4>Mobile</h4>
+            <p>Android 8.0+ / iOS 14+<br />2GB RAM<br />100MB storage</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <p>
+          © 2024 AIXILCOILS. All rights reserved.<br />
+          Need help? Contact
+          <a href="mailto:support@aixilcoils.com">support@aixilcoils.com</a>
+        </p>
+      </footer>
+    </div>
+
+    <script>
+      // Detect platform and highlight recommended download
+      function detectPlatform() {
+        const platform = navigator.platform.toLowerCase();
+        const userAgent = navigator.userAgent.toLowerCase();
+
+        if (platform.includes("win")) return "windows";
+        if (platform.includes("mac")) return "macos";
+        if (platform.includes("linux")) return "linux";
+        if (/android/.test(userAgent)) return "android";
+        if (/iphone|ipad|ipod/.test(userAgent)) return "ios";
+        return "unknown";
+      }
+
+      // You can use this to auto-highlight the user's platform
+      console.log("Detected platform:", detectPlatform());
+    </script>
+  </body>
+</html>

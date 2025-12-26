@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">AIXILCOILS AMS</string>
+    <string name="title_activity_main">AIXILCOILS AMS</string>
+    <string name="package_name">com.aixilcoils.ams</string>
+    <string name="custom_url_scheme">com.aixilcoils.ams</string>
+</resources>

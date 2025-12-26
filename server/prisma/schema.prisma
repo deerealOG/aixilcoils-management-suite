@@ -1,0 +1,758 @@
+// AIXILCOILS Management Suite - Database Schema
+// PostgreSQL with Prisma ORM
+
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==================== USER & AUTH ====================
+
+model User {
+  id                    String      @id @default(uuid())
+  email                 String      @unique
+  password              String
+  firstName             String
+  lastName              String
+  avatar                String?
+  phone                 String?
+  bio                   String?
+  role                  Role        @default(MEMBER)
+  status                UserStatus  @default(ACTIVE)
+  departmentId          String?
+  department            Department? @relation(fields: [departmentId], references: [id])
+  managerId             String?
+  manager               User?       @relation("ManagerEmployee", fields: [managerId], references: [id])
+  subordinates          User[]      @relation("ManagerEmployee")
+  position              String?
+  hireDate              DateTime?
+  salary                Decimal?    @db.Decimal(12, 2)
+  preferences           Json? // User preferences (notifications, theme, etc.)
+  onboardingCompleted   Boolean     @default(false)
+  onboardingCompletedAt DateTime?
+  mfaEnabled            Boolean     @default(false)
+  mfaSecret             String?
+  lastLogin             DateTime?
+  refreshToken          String?
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+
+  // Relations
+  sentMessages       Message[]           @relation("SentMessages")
+  channelMembers     ChannelMember[]
+  assignedTasks      Task[]              @relation("AssignedTasks")
+  createdTasks       Task[]              @relation("CreatedTasks")
+  projects           ProjectMember[]
+  performanceReviews PerformanceReview[] @relation("ReviewedEmployee")
+  givenReviews       PerformanceReview[] @relation("Reviewer")
+  kpis               KPI[]
+  okrs               OKR[]
+  leaveRequests      LeaveRequest[]      @relation("EmployeeLeave")
+  approvedLeaves     LeaveRequest[]      @relation("ApprovedLeave")
+  attendance         Attendance[]
+  documents          Document[]          @relation("UploadedDocuments")
+  userDocuments      Document[]          @relation("UserDocuments")
+  notifications      Notification[]
+  auditLogs          AuditLog[]
+  workflowApprovals  WorkflowApproval[]
+  peerFeedback       PeerFeedback[]      @relation("FeedbackGiver")
+  receivedFeedback   PeerFeedback[]      @relation("FeedbackReceiver")
+  comments           Comment[]
+  favorites          Favorite[]
+  timeEntries        TimeEntry[]
+  sessions           Session[]
+  expenses           Expense[]
+
+  @@index([email])
+  @@index([departmentId])
+  @@index([role])
+}
+
+enum Role {
+  OWNER // Full system access (company owner)
+  ADMIN // Manage users, settings, approvals
+  LEAD // Team lead, manage their team
+  MEMBER // Standard team member
+  GUEST // View-only access
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+// ==================== DEPARTMENTS ====================
+
+model Department {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  code        String   @unique
+  description String?
+  managerId   String?
+  budget      Decimal? @db.Decimal(15, 2)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  users    User[]
+  channels Channel[]
+  projects Project[]
+  kpis     KPI[]
+
+  @@index([name])
+}
+
+// ==================== CHAT & MESSAGING ====================
+
+model Channel {
+  id           String      @id @default(uuid())
+  name         String
+  description  String?
+  type         ChannelType @default(GROUP)
+  isPrivate    Boolean     @default(false)
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  // Relations
+  members  ChannelMember[]
+  messages Message[]
+
+  @@index([type])
+  @@index([departmentId])
+}
+
+enum ChannelType {
+  DIRECT
+  GROUP
+  DEPARTMENT
+  ANNOUNCEMENT
+}
+
+model ChannelMember {
+  id        String      @id @default(uuid())
+  channelId String
+  channel   Channel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      ChannelRole @default(MEMBER)
+  joinedAt  DateTime    @default(now())
+  lastRead  DateTime    @default(now())
+
+  @@unique([channelId, userId])
+  @@index([userId])
+}
+
+enum ChannelRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model Message {
+  id           String        @id @default(uuid())
+  content      String
+  channelId    String
+  channel      Channel       @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  senderId     String
+  sender       User          @relation("SentMessages", fields: [senderId], references: [id])
+  parentId     String?
+  parent       Message?      @relation("MessageReplies", fields: [parentId], references: [id])
+  replies      Message[]     @relation("MessageReplies")
+  attachments  Attachment[]
+  readReceipts ReadReceipt[]
+  isEdited     Boolean       @default(false)
+  isDeleted    Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([channelId])
+  @@index([senderId])
+  @@index([createdAt])
+}
+
+model Attachment {
+  id         String   @id @default(uuid())
+  fileName   String
+  fileType   String
+  fileSize   Int
+  filePath   String
+  messageId  String?
+  message    Message? @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  taskId     String?
+  task       Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  documentId String?
+  createdAt  DateTime @default(now())
+
+  @@index([messageId])
+  @@index([taskId])
+}
+
+model ReadReceipt {
+  id        String   @id @default(uuid())
+  messageId String
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId    String
+  readAt    DateTime @default(now())
+
+  @@unique([messageId, userId])
+}
+
+// ==================== PROJECTS & TASKS ====================
+
+model Project {
+  id           String        @id @default(uuid())
+  name         String
+  description  String?
+  status       ProjectStatus @default(PLANNING)
+  priority     Priority      @default(MEDIUM)
+  departmentId String?
+  department   Department?   @relation(fields: [departmentId], references: [id])
+  startDate    DateTime?
+  endDate      DateTime?
+  budget       Decimal?      @db.Decimal(15, 2)
+  progress     Int           @default(0)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  // Relations
+  members     ProjectMember[]
+  tasks       Task[]
+  timeEntries TimeEntry[]
+
+  @@index([status])
+  @@index([departmentId])
+}
+
+enum ProjectStatus {
+  PLANNING
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model ProjectMember {
+  id        String      @id @default(uuid())
+  projectId String
+  project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      ProjectRole @default(MEMBER)
+  joinedAt  DateTime    @default(now())
+
+  @@unique([projectId, userId])
+  @@index([userId])
+}
+
+enum ProjectRole {
+  OWNER
+  MANAGER
+  MEMBER
+  VIEWER
+}
+
+model Task {
+  id             String     @id @default(uuid())
+  title          String
+  description    String?
+  status         TaskStatus @default(TODO)
+  priority       Priority   @default(MEDIUM)
+  projectId      String
+  project        Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assigneeId     String?
+  assignee       User?      @relation("AssignedTasks", fields: [assigneeId], references: [id])
+  creatorId      String
+  creator        User       @relation("CreatedTasks", fields: [creatorId], references: [id])
+  parentId       String?
+  parent         Task?      @relation("SubTasks", fields: [parentId], references: [id])
+  subTasks       Task[]     @relation("SubTasks")
+  dueDate        DateTime?
+  estimatedHours Float?
+  actualHours    Float?
+  order          Int        @default(0)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  // Relations
+  attachments Attachment[]
+  comments    Comment[]
+  timeEntries TimeEntry[]
+
+  @@index([projectId])
+  @@index([assigneeId])
+  @@index([status])
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  COMPLETED
+  CANCELLED
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([taskId])
+}
+
+// ==================== PERFORMANCE MANAGEMENT ====================
+
+model PerformanceReview {
+  id           String       @id @default(uuid())
+  employeeId   String
+  employee     User         @relation("ReviewedEmployee", fields: [employeeId], references: [id])
+  reviewerId   String
+  reviewer     User         @relation("Reviewer", fields: [reviewerId], references: [id])
+  period       String // e.g., "Q1 2024", "2024"
+  type         ReviewType   @default(QUARTERLY)
+  status       ReviewStatus @default(DRAFT)
+  overallScore Decimal?     @db.Decimal(3, 2)
+  strengths    String?
+  improvements String?
+  goals        String?
+  comments     String?
+  submittedAt  DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  // Relations
+  scores ReviewScore[]
+
+  @@index([employeeId])
+  @@index([reviewerId])
+  @@index([period])
+}
+
+enum ReviewType {
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  ANNUAL
+  PROBATION
+}
+
+enum ReviewStatus {
+  DRAFT
+  SUBMITTED
+  ACKNOWLEDGED
+  COMPLETED
+}
+
+model ReviewScore {
+  id       String            @id @default(uuid())
+  reviewId String
+  review   PerformanceReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  category String // e.g., "Communication", "Technical Skills"
+  score    Decimal           @db.Decimal(3, 2)
+  weight   Decimal           @default(1) @db.Decimal(3, 2)
+  comments String?
+
+  @@index([reviewId])
+}
+
+model KPI {
+  id           String      @id @default(uuid())
+  name         String
+  description  String?
+  userId       String?
+  user         User?       @relation(fields: [userId], references: [id])
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  targetValue  Decimal     @db.Decimal(15, 2)
+  currentValue Decimal     @default(0) @db.Decimal(15, 2)
+  unit         String? // e.g., "%", "$", "count"
+  period       String // e.g., "Q1 2024"
+  status       KPIStatus   @default(ON_TRACK)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([userId])
+  @@index([departmentId])
+}
+
+enum KPIStatus {
+  ON_TRACK
+  AT_RISK
+  BEHIND
+  ACHIEVED
+  EXCEEDED
+}
+
+model OKR {
+  id        String    @id @default(uuid())
+  objective String
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  period    String // e.g., "Q1 2024"
+  status    OKRStatus @default(ACTIVE)
+  progress  Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  keyResults KeyResult[]
+
+  @@index([userId])
+  @@index([period])
+}
+
+enum OKRStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+model KeyResult {
+  id           String   @id @default(uuid())
+  okrId        String
+  okr          OKR      @relation(fields: [okrId], references: [id], onDelete: Cascade)
+  description  String
+  targetValue  Decimal  @db.Decimal(15, 2)
+  currentValue Decimal  @default(0) @db.Decimal(15, 2)
+  unit         String?
+  progress     Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([okrId])
+}
+
+model PeerFeedback {
+  id          String       @id @default(uuid())
+  giverId     String
+  giver       User         @relation("FeedbackGiver", fields: [giverId], references: [id])
+  receiverId  String
+  receiver    User         @relation("FeedbackReceiver", fields: [receiverId], references: [id])
+  type        FeedbackType @default(APPRECIATION)
+  message     String
+  isAnonymous Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+
+  @@index([receiverId])
+  @@index([giverId])
+}
+
+enum FeedbackType {
+  APPRECIATION
+  CONSTRUCTIVE
+  RECOGNITION
+}
+
+// ==================== HR MANAGEMENT ====================
+
+model LeaveRequest {
+  id         String      @id @default(uuid())
+  employeeId String
+  employee   User        @relation("EmployeeLeave", fields: [employeeId], references: [id])
+  type       LeaveType
+  startDate  DateTime
+  endDate    DateTime
+  days       Decimal     @db.Decimal(4, 1)
+  reason     String?
+  status     LeaveStatus @default(PENDING)
+  approverId String?
+  approver   User?       @relation("ApprovedLeave", fields: [approverId], references: [id])
+  approvedAt DateTime?
+  comments   String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@index([employeeId])
+  @@index([status])
+}
+
+enum LeaveType {
+  ANNUAL
+  SICK
+  PERSONAL
+  MATERNITY
+  PATERNITY
+  UNPAID
+  BEREAVEMENT
+  OTHER
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model Attendance {
+  id          String           @id @default(uuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id])
+  date        DateTime         @db.Date
+  checkIn     DateTime?
+  checkOut    DateTime?
+  status      AttendanceStatus @default(PRESENT)
+  hoursWorked Decimal?         @db.Decimal(4, 2)
+  notes       String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  HALF_DAY
+  WORK_FROM_HOME
+  ON_LEAVE
+}
+
+model Document {
+  id          String       @id @default(uuid())
+  name        String
+  type        DocumentType
+  fileName    String
+  filePath    String
+  fileSize    Int
+  mimeType    String
+  uploaderId  String
+  uploader    User         @relation("UploadedDocuments", fields: [uploaderId], references: [id])
+  userId      String?
+  user        User?        @relation("UserDocuments", fields: [userId], references: [id])
+  description String?
+  expiryDate  DateTime?
+  isPublic    Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([uploaderId])
+  @@index([userId])
+  @@index([type])
+}
+
+enum DocumentType {
+  CONTRACT
+  OFFER_LETTER
+  ID_PROOF
+  RESUME
+  POLICY
+  CERTIFICATE
+  PAYSLIP
+  TAX_DOCUMENT
+  OTHER
+}
+
+// ==================== WORKFLOWS & AUTOMATION ====================
+
+model Workflow {
+  id          String       @id @default(uuid())
+  name        String
+  description String?
+  type        WorkflowType
+  steps       Json // Array of workflow steps
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  approvals WorkflowApproval[]
+
+  @@index([type])
+}
+
+enum WorkflowType {
+  LEAVE_APPROVAL
+  EXPENSE_APPROVAL
+  DOCUMENT_APPROVAL
+  HIRE_APPROVAL
+  CUSTOM
+}
+
+model WorkflowApproval {
+  id         String         @id @default(uuid())
+  workflowId String
+  workflow   Workflow       @relation(fields: [workflowId], references: [id])
+  entityType String // e.g., "LeaveRequest", "Document"
+  entityId   String
+  approverId String
+  approver   User           @relation(fields: [approverId], references: [id])
+  step       Int
+  status     ApprovalStatus @default(PENDING)
+  comments   String?
+  decidedAt  DateTime?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@index([workflowId])
+  @@index([approverId])
+  @@index([entityId])
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SKIPPED
+}
+
+// ==================== NOTIFICATIONS & AUDIT ====================
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id])
+  type      NotificationType
+  title     String
+  message   String
+  data      Json?
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+enum NotificationType {
+  MESSAGE
+  TASK
+  LEAVE
+  REVIEW
+  SYSTEM
+  REMINDER
+  APPROVAL
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  action     String
+  entityType String
+  entityId   String?
+  oldValues  Json?
+  newValues  Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([entityType])
+  @@index([createdAt])
+}
+
+// ==================== FAVORITES/BOOKMARKS ====================
+
+model Favorite {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entityType String // 'project', 'task', 'document', 'channel', 'user'
+  entityId   String
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, entityType, entityId])
+  @@index([userId])
+  @@index([entityType])
+}
+
+// ==================== TIME TRACKING ====================
+
+model TimeEntry {
+  id          String          @id @default(uuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taskId      String?
+  task        Task?           @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  projectId   String?
+  project     Project?        @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  description String?
+  startTime   DateTime
+  endTime     DateTime?
+  duration    Int? // Duration in minutes
+  billable    Boolean         @default(true)
+  status      TimeEntryStatus @default(DRAFT)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([userId])
+  @@index([taskId])
+  @@index([startTime])
+}
+
+enum TimeEntryStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+// ==================== SESSION MANAGEMENT ====================
+
+model Session {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token      String   @unique
+  deviceInfo String?
+  ipAddress  String?
+  userAgent  String?
+  lastActive DateTime @default(now())
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+}
+
+// ==================== EXPENSES ====================
+
+model Expense {
+  id          String        @id @default(uuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  description String
+  amount      Decimal       @db.Decimal(10, 2)
+  category    String // e.g., 'Travel', 'Equipment', 'Meals'
+  date        DateTime      @default(now())
+  status      ExpenseStatus @default(PENDING)
+  receipt     String? // URL to receipt image
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+enum ExpenseStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PAID
+}
