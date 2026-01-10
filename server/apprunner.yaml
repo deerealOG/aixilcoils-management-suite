@@ -5,6 +5,9 @@ build:
     pre-build:
       - npm install
       - npx prisma generate
+  env:
+    - name: DATABASE_URL
+      value: "postgresql://placeholder:placeholder@localhost:5432/placeholder"
 run:
   command: npm start
   network:
