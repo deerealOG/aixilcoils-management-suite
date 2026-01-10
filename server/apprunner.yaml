@@ -1,0 +1,19 @@
+version: 1.0
+runtime: nodejs18
+build:
+  commands:
+    pre-build:
+      - npm install
+      - npx prisma generate
+run:
+  command: npm start
+  network:
+    port: 5000
+    env: PORT
+  env:
+    - name: NODE_ENV
+      value: production
+    # Add these environment variables in the App Runner console for security:
+    # - DATABASE_URL (from RDS endpoint)
+    # - JWT_SECRET (random string)
+    # - CLIENT_URL (set to "*" or your specific domain)
