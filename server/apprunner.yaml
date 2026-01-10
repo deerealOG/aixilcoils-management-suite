@@ -9,7 +9,7 @@ build:
     - name: DATABASE_URL
       value: "postgresql://placeholder:placeholder@localhost:5432/placeholder"
 run:
-  command: npx prisma migrate deploy && npm start
+  command: npx prisma generate && npx prisma migrate deploy && npm start
   network:
     port: 5000
     env: PORT
