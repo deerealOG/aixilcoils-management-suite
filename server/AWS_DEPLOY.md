@@ -20,10 +20,13 @@ AWS App Runner is the simplest way to deploy a web application directly from a G
 
 1. In the AWS Console, search for **RDS**.
 2. Click **Create database**.
-3. Choose **PostgreSQL** and the **Free tier** template.
-4. Set your Master username and password (save these!).
-5. Under **Connectivity**, ensure **Public access** is set to **Yes** if you want to seed it from your local machine (though **No** is more secure for production).
-6. Create the database.
+3. **Choose a database creation method**: Select **Standard create** (this gives you the Free Tier option).
+4. **Engine options**: Select **PostgreSQL**.
+5. **Templates**: Scroll down and select **Free tier**.
+6. **Settings**: Set your **DB instance identifier** (e.g., `aixilcoils-db`), **Master username**, and **Master password** (save these!).
+7. **Connectivity**: Under **Public access**, select **Yes** (to allow seeding from your local machine).
+   - _Note: In a high-security production environment, you'd select 'No' and use a VPN or jump box, but for this setup 'Yes' is easier._
+8. Click **Create database**.
 
 ### Step 3: Deploy with App Runner
 
