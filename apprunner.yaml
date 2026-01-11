@@ -1,0 +1,10 @@
+version: 1.0
+runtime: docker
+build:
+  dockerfile: Dockerfile
+run:
+  network:
+    port: 5000
+  env:
+    - name: NODE_ENV
+      value: production
