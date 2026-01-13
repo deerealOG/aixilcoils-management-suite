@@ -1,10 +1,16 @@
 version: 1.0
-runtime: docker
+runtime: nodejs18
 build:
-  dockerfile: Dockerfile
+  commands:
+    pre-build:
+      - cd server && npm install
+    build:
+      - cd server && npx prisma generate
 run:
+  command: cd server && npm start
   network:
     port: 5000
+    env: PORT
   env:
     - name: NODE_ENV
-      value: production
+      value: "production"
